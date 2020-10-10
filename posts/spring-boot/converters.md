@@ -1,11 +1,10 @@
-
 # Spring boot: A guide about ConversionService and type converters
 
 ## Introduction
 
 To develop a service where the business logic is decoupled from the adapters that connect our domain with the outside world, we need some kind of conversion between messages and domain objects making it easier to replace the implementation.
 
-In this blog post I am going to show you the different ways Spring boot provides us to do it in a clean and elegant way and how it affects to every stage of the development.
+In this blog post, I am going to show you the different ways Spring boot provides us to do it cleanly and elegantly and how it affects every stage of the development.
 
 ## The Converter<S, T> interface
 
@@ -13,7 +12,7 @@ the converter interface is pretty straight forward, it only contains a method th
 
 I personally like this interface because it forces you to only convert one type to another in each converter you develop, I have seen classes that are pretty large and convert a lot of types making them pretty hard to maintain.
 
-Here, the S and the T are pretty similar, but for example, you would not want to have the Jackson annotations to be in the domain object in order to decouple the consumer from the domain itself, usually you would never serialize directly the domain object to any adapter(an exception comes to my mind and I have seen it a lot and is when you use the same object for the domain and the db).
+Here, the S and the T are pretty similar, but for example, you would not want to have the Jackson annotations to be in the domain object to decouple the consumer from the domain itself, usually, you would never serialize directly the domain object to any adapter(an exception comes to my mind and I have seen it a lot and is when you use the same object for the domain and the DB).
 
 ```java
 @Component
@@ -30,7 +29,7 @@ public class EmployeeToEmployeeResponseConverter implements Converter<Employee, 
 }
 ```
 
-In this case we have here a simple converter that converts an Employee to some kind of response. Note that the converter is marked as a component, we will need that later. 
+In this case, we have here a simple converter that converts an Employee to some kind of response. Note that the converter is marked as a component, we will need that later. 
 
 ```java
 public class Employee {
@@ -58,17 +57,17 @@ public class ConversionConfiguration {
 }
 ```
 
-This configuration would override the default conversionService, that already contains some converters with our custom implementation that would add our custom converters exposed as components by default.
+This configuration would override the default conversion service, that already contains some converters with our custom implementation that would add our custom converters exposed as components by default.
 
 ## Composing converters
 
-Sometimes, it makes sense to have a bigger converter that needs to convert smaller entities itself, in order to not duplicate the code of the smaller entities across multiple converters, we could create a converter for each entity.
+Sometimes, it makes sense to have a bigger converter that needs to convert smaller entities itself, to not duplicate the code of the smaller entities across multiple converters, we could create a converter for each entity.
 
 There are two ways to compose those converters:
 
 ### Injecting the converter itself
 
-In this approach, we inject the converter by name, I like this one better because you can use the actual converter in the unit test making it a 'social test', however mocking the response from the conversion service is an approach that I have personally used too.
+In this approach, we inject the converter by name, I like this one better because you can use the actual converter in the unit test making it a 'social test', however, mocking the response from the conversion service is an approach that I have personally used too.
 
 ```java
 @Component
@@ -89,7 +88,7 @@ public class HierarchyToHierarchyResponseConverter implements Converter<Hierarch
 
 ### Injecting the ConversionService
 
-Using the conversionService, you loose the type safety of the conversion and you could fail in runtime if you did not register the converter properly(you could fix this by doing an integration/acceptance test), but you also decouple them. I think is like the [inside out vs outside in approach in testing](https://8thlight.com/blog/georgina-mcfadyen/2016/06/27/inside-out-tdd-vs-outside-in.html) so do whatever feels good for you.
+Using the conversion service, you lose the type safety of the conversion and you could fail in runtime if you did not register the converter properly(you could fix this by doing an integration/acceptance test), but you also decouple them. I think is like the [inside out vs outside-in approach in testing](https://8thlight.com/blog/georgina-mcfadyen/2016/06/27/inside-out-tdd-vs-outside-in.html) so do whatever feels good for you.
 
 ```java
 @Component
@@ -137,7 +136,7 @@ void setUp() {
 
 ### Asserting the result of the test
 
-One tip I got from a colleague(thank you Sergio!) that I got when asserting the results of the converters, is that you should not assert against the expected object, instead, validate each field with the expected value in order to have a robust test.
+One tip I got from a colleague(thank you Sergio!) that I got when asserting the results of the converters, is that you should not assert against the expected object, instead, validate each field with the expected value to have a robust test.
 
 ```java
 @Test
@@ -152,7 +151,7 @@ One tip I got from a colleague(thank you Sergio!) that I got when asserting the 
     } 
 ```
 
-In this case, my factory is returning me a hierarchy where the employees look like Jonas → Sophie, so instead creating a new Object with the whole hierarchy, I would test only the needed ones, as you are not forced to implement a proper equals method.
+In this case, my factory is returning me a hierarchy where the employees look like Jonas → Sophie, so instead of creating a new Object with the whole hierarchy, I would test only the needed ones, as you are not forced to implement a proper equals method.
 
 ## Injecting our converters inside the adapters
 
